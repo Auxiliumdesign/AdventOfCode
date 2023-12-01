@@ -14,7 +14,7 @@ This repository contains my Matlab solutions for each year's Advent of Code even
 
 |    |        2022        |        2023        |        2024        |        2025        |        2026        |
 |----|:------------------:|:------------------:|:------------------:|:------------------:|:------------------:|
-|  1 | :white_check_mark: |         :x:        |         :x:        |         :x:        |         :x:        |
+|  1 | :white_check_mark: | :white_check_mark: |         :x:        |         :x:        |         :x:        |
 |  2 | :white_check_mark: |         :x:        |         :x:        |         :x:        |         :x:        |
 |  3 | :white_check_mark: |         :x:        |         :x:        |         :x:        |         :x:        |
 |  4 | :white_check_mark: |         :x:        |         :x:        |         :x:        |         :x:        |
