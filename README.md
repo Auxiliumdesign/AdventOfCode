@@ -7,6 +7,10 @@ Visit the [Advent of Code site][1]!
 ## What is this repository?
 This repository contains my Matlab solutions for each year's Advent of Code event. In most cases the provided solutions represent a "first-thoughts" approach to the day's problem rather than the most efficient. I go for simple functions rather than efficiant and short as time is of the essense. 
 
+## Why Matlab?
+I have gotten this question a couple of times now. I believe Matlab is a really good tool when it comes to quickly testing thoughts and ideas. It has very powerful built-in functions and is easy to debug, and to see values of arrays.
+Python, which would be my second language, is also a bit slower in most occations. I also don't think there are many Matlab-solvers out there, so thats a fun challange.
+
 # Solution Tracker
 :x: - Not complete
 :white_circle: - Partially complete
