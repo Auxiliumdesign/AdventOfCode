@@ -1,0 +1,304 @@
+clear all;
+data = readlines("Test.txt");
+
+%%
+
+clear all;
+% Read the input file
+% Read the file
+data = readlines("Input.txt");
+map = strrep(data, '#', '9');
+map = strrep(map, '.', '0');
+map = strrep(map, 'S', '1');
+map = strrep(map, 'E', '2');
+map = char(map)
+
+% Define the grid and the corresponding coordinates
+numpad = ['7', '8', '9';
+        '4', '5', '6';
+        '1', '2', '3';
+        ' ', '0', 'A'];
+
+% Create a mapping container
+map = containers.Map();
+
+% Iterate through the grid and assign coordinates
+for row = 1:size(numpad, 1)
+    for col = 1:size(numpad, 2)
+        charValue = numpad(row, col);
+        if charValue ~= ' ' % Skip empty cells
+            % Map the character to its coordinates
+            map(charValue) = [row - 1, col - 1];
+        end
+    end
+end
+
+
+startPos = [4,3]
+Orignumgrid = [0,0,0;0,0,0;0,0,0;9,0,0]
+numgrid = Orignumgrid
+coords = map('0');
+numgrid(startPos(1),startPos(2)) = 1
+numgrid(coords(1) + 1, coords(2) + 1) = 2;
+
+tic
+grid = numgrid
+[startRow,startCol] = find(grid==1)
+[endRow,endCol] = find(grid==2)
+queue = [{[startRow,startCol],1,0,[startRow,startCol],0};{[startRow,startCol],2,0,[startRow,startCol],0};{[startRow,startCol],3,0,[startRow,startCol],0};{[startRow,startCol],4,0,[startRow,startCol],0}]
+visitedScores =  ones(height(map),width(map))*100000
+lowest = 100000
+lowestPaths = {}
+while ~isempty(queue)
+    tempQ = {};
+    for i = 1:height(queue)
+        if queue{i,1}(1)-1>0 && grid(queue{i,1}(1)-1,queue{i,1}(2))~=9
+            rotCost = min(abs(queue{i,2}-1)*1000,abs(queue{i,2}-4-1)*1000);
+           
+                tempQ(end+1,:) = {[queue{i,1}(1)-1, queue{i,1}(2)], 1 ,queue{i,3}+1+rotCost,[queue{i,4};[queue{i,1}(1)-1, queue{i,1}(2)]],[queue{i,5},1]};
+            
+        end
+        if queue{i,1}(2)+1<=width(grid) && grid(queue{i,1}(1),queue{i,1}(2)+1)~=9
+            rotCost = min(abs(queue{i,2}-2)*1000,abs(queue{i,2}-4-2)*1000);
+          
+                tempQ(end+1,:)  = {[queue{i,1}(1), queue{i,1}(2)+1], 2 ,queue{i,3}+1+rotCost,[queue{i,4};[queue{i,1}(1), queue{i,1}(2)+1]],[queue{i,5},2]};
+          
+        end
+        if queue{i,1}(1)+1<=height(grid) && grid(queue{i,1}(1)+1,queue{i,1}(2))~=9
+            rotCost = min(abs(queue{i,2}-3)*1000,abs(queue{i,2}-4-3)*1000);
+                tempQ(end+1,:)  = {[queue{i,1}(1)+1, queue{i,1}(2)], 3 ,queue{i,3}+1+rotCost,[queue{i,4};[queue{i,1}(1)+1, queue{i,1}(2)]],[queue{i,5},3]};
+          
+        end
+        if queue{i,1}(2)-1>0 && grid(queue{i,1}(1),queue{i,1}(2)-1)~=9
+            rotCost = min(abs(queue{i,2}-4)*1000,abs(queue{i,2}-4+4)*1000);
+
+           
+                tempQ(end+1,:) = {[queue{i,1}(1), queue{i,1}(2)-1], 4 ,queue{i,3}+1+rotCost,[queue{i,4};[queue{i,1}(1), queue{i,1}(2)-1]],[queue{i,5},4]};
+         
+        end
+    end
+    if ~isempty(tempQ)
+        queueVia = tempQ;%sortedTempQ(uniqueIdx, :);
+        queue = {};
+        for h = 1:height(queueVia)
+            if(length(unique(queueVia{h,4}, 'rows')))== height(queueVia{h,4})
+                queue(end+1,:) = queueVia(h,:);
+            end
+        end
+    else
+        break
+    end
+    rowsEqual = cellfun(@(pos) isequal(pos, [endRow, endCol]), tempQ(:, 1));
+    matchingIndices = find(rowsEqual);
+    if ~isempty(matchingIndices)
+        a = tempQ(matchingIndices,:);
+        for k = 1:height(a)
+            if a{k,3} <= lowest
+                if  a{k,3} == lowest
+                    lowestPaths(end+1,:) =a(k,5);
+                else
+                    lowestPaths = {}
+                    lowestPaths(end+1,:) =a(k,5);
+                end
+                lowest =  a{k,3} ;
+            end
+        end
+    end
+
+
+end
+
+%%
+clear all
+tic
+part1 = 0
+data = readlines("Sequence.txt");
+codes = readlines("Codes.txt");
+for k = 1:height(data)
+    code = char(codes(k));
+CurrData = char(data(k,:));
+for i = 1:2
+accuRes = [];
+% Example: Current symbol '^', target symbol 'A'
+currentSymbol = ('A');
+for a = 1:length(CurrData)
+targetSymbol = CurrData(a);
+result = lookupString(currentSymbol, targetSymbol);
+accuRes = [accuRes, result];
+currentSymbol = targetSymbol;
+end
+CurrData = accuRes;
+end
+str2num(code(1:3))*length(accuRes);
+part1 = part1 + str2num(code(1:3))*length(accuRes);
+end
+toc
+%%
+data = readlines("testSeq.txt");
+
+lookup = ["A";"<A";"<<A";"<^A";"v<A";"vA";">vA";">>^A";">^A";"^A";">A";">>A";"v<<A"]
+lengths = [1,2,3,3,3,2,3,4,3,2,2,3,4]
+results = {[1],[13,8],[13,1,8],[13,9,11],[13,11,9],[5,9],[6,2,9],[6,1,4],[6,4,11],[2,11],[6,10],[6,9,10],[5,2,1,8]};
+part2 = 0
+for i = 1:height(data)
+    currline = char(data(i))
+    As = find(currline == 'A')
+    currStart = 1;
+    queue = []
+    for k = 1:length(As)
+        currEnd = As(k)
+        part = string(currline(currStart:currEnd))
+        index = find(part==lookup)
+        if isempty(index)
+            "here"
+        end
+        queue = [queue,index]
+        currStart = currEnd +1;
+    end
+    tic
+for n = 1:2
+    % Combine all results from the current queue in one step
+    queue = horzcat(results{queue});
+end
+toc
+for g = 1:length(queue)
+    part2 = part2+lengths(queue(g));
+end
+
+end
+
+%%
+data = readlines("testSeq.txt");
+codes = readlines("testCodes.txt");
+
+lookup = ["A";"<A";"<<A";"<^A";"v<A";"vA";">vA";">>^A";">^A";"^A";">A";">>A";"v<<A"];
+lengths = [1,2,3,3,3,2,3,4,3,2,2,3,4];
+results = {[1],[13,8],[13,1,8],[13,9,11],[13,11,9],[5,9],[6,2,9],[6,1,4],[6,4,11],[2,11],[6,10],[6,9,10],[5,2,1,8]};
+part2 = 0;
+ tic;
+for i = 1:height(data)
+    code = char(codes(i));
+    currline = char(data(i));
+    As = find(currline == 'A');
+    currStart = 1;
+    queue = [];
+    for k = 1:length(As)
+        currEnd = As(k);
+        part = string(currline(currStart:currEnd));
+        index = find(part == lookup);
+        if isempty(index)
+            error("Lookup failed for part: %s", part);
+        end
+        queue = [queue, index];
+        currStart = currEnd + 1;
+    end
+
+    % Combine the results for `n = 9` iterations in a single operation
+   
+    for n = 1:1
+        % Precompute all indices in a single step using cell array expansion
+        queue = [results{queue}];
+    end
+  
+
+    % Compute part2 efficiently
+    part2 = part2 + sum(lengths(queue));
+end
+  toc;
+disp("Part 2 result: " + part2);
+%%
+
+%%
+data = readlines("Seq.txt");
+codes = readlines("Codes.txt");
+lookup = ["A";"<A";"<<A";"<^A";"v<A";"vA";">vA";">>^A";"^>A";"^A";">A";">>A";"v<<A";">^A";"<vA";"^<A"]
+lengths = [1,   2,   3,    3,    3,    2,    3,    4,    3,   2,   2,   3,     4, 3,3,3]
+results = {[1],[13,8],[13,1,8],[13,14,11],[15,2,8],[15,14],[6,2,14],[6,1,4,11],[2,7,10],[2,11],[6,10],[6,1,10],[15,2,1,8],[6,4,11],[13,11,14],[2,15,8]};
+% Initialize memoization container
+calculated = containers.Map('KeyType', 'double', 'ValueType', 'double');
+
+% Compute total complexity
+totalComplexity = 0;
+tic
+for i = 1:height(data)
+    code = char(codes(i));
+    currline = char(data(i));
+    As = find(currline == 'A');
+    currStart = 1;
+    queue = [];
+    for k = 1:length(As)
+        currEnd = As(k);
+        part = string(currline(currStart:currEnd));
+        index = find(part == lookup);
+        if isempty(index)
+            error("Lookup failed for part: %s", part);
+        end
+        queue = [queue, index];
+        currStart = currEnd + 1;
+    end
+
+    % Compute total button presses with memoization
+    totalPresses = 0;
+    for q = queue
+        totalPresses = totalPresses + computeButtonPressesMemo(q, 2+23, lengths, results, calculated);
+    end
+
+    % Extract numeric code and calculate complexity
+    totalComplexity = totalComplexity + (totalPresses * str2double(code(1:3)));
+end
+
+disp("Total Complexity: " + totalComplexity);
+toc
+% Recursive function with memoization
+function totalPresses = computeButtonPressesMemo(index, n, lengths, results, calculated)
+    % Generate a unique key for memoization
+    key = index + n*1000;
+
+    % Check if result is already calculated
+    if isKey(calculated, key)
+        totalPresses = calculated(key);
+        return;
+    end
+
+    % Base case
+    if n == 1
+        totalPresses = lengths(index);
+        calculated(key) = totalPresses;
+        return;
+    end
+
+    % Recursive case
+    totalPresses = 0;
+    for child = results{index}
+        totalPresses = totalPresses + computeButtonPressesMemo(child, n - 1, lengths, results, calculated);
+    end
+
+    % Save result to memoization map
+    calculated(key) = totalPresses;
+end
+
+
+%%
+function result = lookupString(currentSymbol, targetSymbol)
+    % Define the lookup matrix
+    lookupTable = {
+        '.', '^', 'A', '<', 'v', '>';
+        '^',  'A',    '<A',  '>^A',  '^A',   '^<A';
+        'A',  '>A',   'A',   '>>^A', '^>A',  '^A';
+        '<',  'v<A',  'v<<A','A',    '<A',   '>>A';
+        'v',  'vA',   'v<A', '>A',   'A',    '<A';
+        '>',  'v>A',  'vA',  '<<A',  '>A',   'A'
+    };
+    
+    % Locate the indices for the symbols
+    colIdx = find(strcmp(lookupTable(1, :), currentSymbol));
+    rowIdx = find(strcmp(lookupTable(:, 1), targetSymbol));
+    
+    % Check if the symbols are valid
+    if isempty(colIdx) || isempty(rowIdx)
+        error('Invalid symbol provided.');
+    end
+    
+    % Retrieve the corresponding string
+    result = lookupTable{rowIdx, colIdx};
+end
